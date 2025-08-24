@@ -23,7 +23,7 @@ docs/ # Documentation
 
 ## 🛠 Installation
 ```bash
-git clone https://github.com/YOUR_USERNAME/ai-agent-tester.git
+git clone https://github.com/Kodajonathan/webtest-automator.git
 cd ai-agent-tester
 python -m venv venv
 source venv/bin/activate  # On Windows: venv\Scripts\activate
