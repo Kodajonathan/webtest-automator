@@ -1,0 +1,251 @@
+:root {
+  --bs-dark: #0d1117;
+  --bs-secondary: #21262d;
+  --accent-color: #58a6ff;
+  --success-color: #238636;
+  --warning-color: #d29922;
+  --danger-color: #f85149;
+}
+
+body {
+  background-color: #0d1117;
+  color: #f0f6fc;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-size: 14px;
+}
+
+.sidebar {
+  width: 280px;
+  background-color: #161b22;
+  border-right: 1px solid #30363d;
+  min-height: 100vh;
+  position: fixed;
+  left: 0;
+  top: 0;
+  z-index: 1000;
+}
+
+.main-content {
+  margin-left: 280px;
+  padding: 20px;
+}
+
+.card {
+  background-color: #21262d;
+  border: 1px solid #30363d;
+  border-radius: 8px;
+}
+
+.card-header {
+  background-color: #161b22;
+  border-bottom: 1px solid #30363d;
+  font-weight: 600;
+  font-size: 16px;
+}
+
+.nav-pills .nav-link {
+  color: #7d8590;
+  border-radius: 6px;
+  margin-bottom: 4px;
+  padding: 8px 12px;
+  transition: all 0.2s ease;
+}
+
+.nav-pills .nav-link:hover {
+  background-color: #30363d;
+  color: #f0f6fc;
+}
+
+.nav-pills .nav-link.active {
+  background-color: var(--accent-color);
+  color: #ffffff;
+}
+
+.btn-primary {
+  background-color: var(--accent-color);
+  border-color: var(--accent-color);
+}
+
+.btn-primary:hover {
+  background-color: #4493f8;
+  border-color: #4493f8;
+}
+
+.btn-success {
+  background-color: var(--success-color);
+  border-color: var(--success-color);
+}
+
+.btn-warning {
+  background-color: var(--warning-color);
+  border-color: var(--warning-color);
+  color: #000;
+}
+
+.btn-danger {
+  background-color: var(--danger-color);
+  border-color: var(--danger-color);
+}
+
+.form-control,
+.form-select {
+  background-color: #0d1117;
+  border: 1px solid #30363d;
+  color: #f0f6fc;
+}
+
+.form-control:focus,
+.form-select:focus {
+  background-color: #0d1117;
+  border-color: var(--accent-color);
+  box-shadow: 0 0 0 0.2rem rgba(88, 166, 255, 0.25);
+  color: #f0f6fc;
+}
+
+.status-badge {
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.status-running {
+  background-color: rgba(210, 153, 34, 0.15);
+  color: var(--warning-color);
+}
+.status-passed {
+  background-color: rgba(35, 134, 54, 0.15);
+  color: var(--success-color);
+}
+.status-failed {
+  background-color: rgba(248, 81, 73, 0.15);
+  color: var(--danger-color);
+}
+.status-pending {
+  background-color: rgba(125, 133, 144, 0.15);
+  color: #7d8590;
+}
+.status-stopped {
+  background-color: rgba(248, 81, 73, 0.15);
+  color: var(--danger-color);
+}
+
+.progress {
+  height: 6px;
+  background-color: #30363d;
+  border-radius: 3px;
+}
+
+.progress-bar {
+  border-radius: 3px;
+}
+
+.code-editor {
+  background-color: #0d1117;
+  border: 1px solid #30363d;
+  border-radius: 6px;
+  min-height: 400px;
+  font-family: "Consolas", "Monaco", monospace;
+  font-size: 13px;
+}
+
+.log-output {
+  background-color: #0d1117;
+  color: #7d8590;
+  font-family: "Consolas", "Monaco", monospace;
+  font-size: 12px;
+  height: 300px;
+  overflow-y: auto;
+  border: 1px solid #30363d;
+  border-radius: 6px;
+  padding: 12px;
+}
+
+.log-entry {
+  margin-bottom: 4px;
+  white-space: pre-wrap;
+}
+
+.log-error {
+  color: var(--danger-color);
+}
+.log-success {
+  color: var(--success-color);
+}
+.log-warning {
+  color: var(--warning-color);
+}
+.log-info {
+  color: var(--accent-color);
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+}
+
+.stat-card {
+  background: linear-gradient(135deg, #21262d 0%, #161b22 100%);
+  border: 1px solid #30363d;
+  border-radius: 8px;
+  padding: 20px;
+  text-align: center;
+}
+
+.stat-value {
+  font-size: 2rem;
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+
+.test-item {
+  background-color: #161b22;
+  border: 1px solid #30363d;
+  border-radius: 6px;
+  padding: 16px;
+  margin-bottom: 12px;
+  transition: all 0.2s ease;
+}
+
+.test-item:hover {
+  border-color: var(--accent-color);
+}
+
+.dropdown-menu {
+  background-color: #21262d;
+  border: 1px solid #30363d;
+}
+
+.dropdown-item {
+  color: #f0f6fc;
+}
+
+.dropdown-item:hover {
+  background-color: #30363d;
+  color: #f0f6fc;
+}
+
+.tab-pane {
+  display: none;
+}
+
+.tab-pane.active {
+  display: block;
+}
+
+@media (max-width: 768px) {
+  .sidebar {
+    transform: translateX(-100%);
+    transition: transform 0.3s ease;
+  }
+
+  .sidebar.show {
+    transform: translateX(0);
+  }
+
+  .main-content {
+    margin-left: 0;
+  }
+}
