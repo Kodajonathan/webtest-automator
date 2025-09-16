@@ -18,7 +18,10 @@ venv/
 *.log
 
 # Generated scripts
-app/scripts/*.py
+scripts/*.py
+
+# File uploads
+uploads/
 
 # OS
 .DS_Store

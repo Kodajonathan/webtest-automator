@@ -3,4 +3,4 @@ from app.ui.server import app
 
 # this is the app entry point
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run(debug=True,use_reloader=False)
