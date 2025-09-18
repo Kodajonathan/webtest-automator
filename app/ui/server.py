@@ -1,6 +1,6 @@
 # app/ui/server.py
 from flask import Flask, render_template, request, jsonify
-from app.utils.file_handler import save_uploaded_file,read_file_by_name,get_generated_scripts
+from app.utils.file_handler import save_uploaded_file,read_file_by_name,get_generated_scripts,load_config,save_config
 from urllib.parse import urlparse
 import os
 import requests
@@ -11,6 +11,61 @@ app = Flask(__name__, template_folder="templates", static_folder="static")
 def home():
     # Renders the black-themed UI (index.html)
     return render_template("index.html")
+
+@app.route("/api/get-config",methods=["POST"])
+def get_configuration():
+    try:
+        config=load_config()
+    except Exception as e:
+        return jsonify({"message":f"An error occured while trying to fetch configuration: {e}"}), 400
+    return jsonify({"message":"configuration fetched successfully","config":config}), 200
+
+@app.route("/api/update-config",methods=["POST"])
+def update_configuration():
+    browser = request.form.get("browser", "").strip()
+    if not browser:
+        return jsonify({"message":"default browser is required"})
+    
+    timeout = request.form.get("timeout", "").strip()
+    if not timeout:
+        return jsonify({"message":"timeout number is required"})
+    
+    aiProvider = request.form.get("aiProvider", "").strip()
+    if not aiProvider:
+        return jsonify({"message":"please select an ai provider"})
+    
+    headlessMode = request.form.get("headlessMode", "").strip()
+    if not browser:
+        return jsonify({"message":"headless selection is required"})
+    if headlessMode == "on":
+        headlessMode=True
+    else:
+        headlessMode=False
+    
+    modelSelect = request.form.get("modelSelect", "").strip()
+    if not modelSelect:
+        return jsonify({"message":"model selection is required"})
+    
+    maxTokens = request.form.get("max-tokens", "").strip()
+    if not maxTokens:
+        return jsonify({"message":"please provide a max token value"})
+
+    newConfig={
+    "browser": browser,
+    "headless": headlessMode,
+    "ai_model":modelSelect,
+    "timeout": timeout,
+    "max_tokens": maxTokens
+    }
+
+    # save the new configuration
+    try:
+        save_config(newConfig)
+    except Exception as e:
+        return jsonify({f"An errro occured while saving the configuration: {e}"})
+
+    return jsonify({"message":"configuration updated successfully"}),200
+
 
 @app.route("/upload", methods=["POST"])
 def upload_file():

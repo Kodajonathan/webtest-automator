@@ -1,10 +1,76 @@
-import os
+import os,json
 from werkzeug.utils import secure_filename
 from flask import current_app, has_app_context
 from pathlib import Path
 from typing import Optional
+import errno
 
-ALLOWED_EXTENSIONS = {'txt','py'}  # customize as needed
+ALLOWED_EXTENSIONS = {'py'}  # customize as needed
+
+DEFAULT_CONFIG={
+    "browser": "Chrome",
+    "headless": True,
+    "ai_model":"llama-3.1-8b-instant",
+    "timeout": 60,
+    "max_tokens": 1024
+}
+
+def _deep_merge(a: dict, b: dict) -> dict:
+    """Return a new dict with b merged into a (deep merge)."""
+    result = dict(a)
+    for k, v in b.items():
+        if k in result and isinstance(result[k], dict) and isinstance(v, dict):
+            result[k] = _deep_merge(result[k], v)
+        else:
+            result[k] = v
+    return result
+
+def load_config():
+    """Load the configuration (deep-merge with DEFAULT_CONFIG)."""
+    base_dir = os.environ.get("CONFIGURATIONS_FOLDER", "configs")
+    # Resolve relative to project root for predictable location
+    base_dir = str((Path(__file__).resolve().parents[2] / base_dir).resolve())
+    CONFIG_PATH = os.path.join(base_dir, "config.json")
+
+    try:
+        os.makedirs(base_dir, exist_ok=True)
+        if os.path.exists(CONFIG_PATH):
+            with open(CONFIG_PATH, "r", encoding="utf-8") as f:
+                try:
+                    user_cfg = json.load(f)
+                except json.JSONDecodeError:
+                    print(f"Warning: invalid JSON in {CONFIG_PATH}, using defaults")
+                    return DEFAULT_CONFIG
+            return _deep_merge(DEFAULT_CONFIG, user_cfg)
+    except OSError as e:
+        # non-fatal: log and fall back to defaults
+        if e.errno != errno.EEXIST:
+            print(f"Error creating configs directory {base_dir}: {e}")
+    return DEFAULT_CONFIG
+
+def save_config(new_config: dict):
+    """Save new configuration settings atomically."""
+    if not isinstance(new_config, dict):
+        raise ValueError("new_config must be a dict")
+
+    base_dir = os.environ.get("CONFIGURATIONS_FOLDER", "configs")
+    base_dir = str((Path(__file__).resolve().parents[2] / base_dir).resolve())
+    CONFIG_PATH = os.path.join(base_dir, "config.json")
+    os.makedirs(base_dir, exist_ok=True)
+
+    temp_path = CONFIG_PATH + ".tmp"
+    try:
+        with open(temp_path, "w", encoding="utf-8") as f:
+            json.dump(new_config, f, indent=4, ensure_ascii=False)
+        os.replace(temp_path, CONFIG_PATH)
+    except Exception as e:
+        # Clean up temp file on failure
+        try:
+            if os.path.exists(temp_path):
+                os.remove(temp_path)
+        except Exception:
+            pass
+        raise
 
 def allowed_file(filename: str) -> bool:
     """Check if file extension is allowed."""
@@ -91,7 +157,6 @@ def read_file_by_name(filename: str, base_folder: Optional[str] = None, mode="r"
     """
     path = get_file_Path(filename, base_folder)
     return read_file(path, mode=mode, encoding=encoding)
-
     
 def create_script_file(content: str, file_name: str, scripts_folder: Optional[str] = None) -> str:
     """

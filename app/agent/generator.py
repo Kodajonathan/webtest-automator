@@ -6,6 +6,9 @@ from langgraph.graph import MessagesState
 from langchain_core.messages import SystemMessage, HumanMessage, ToolMessage
 from typing_extensions import TypedDict, Literal
 from langgraph.graph import StateGraph, START, END
+from app.utils.file_handler import load_config
+from typing import Any
+import json
 
 # Prefer relative import when used as a package; fall back for direct runs in debuging
 try:
@@ -28,7 +31,6 @@ from app.agent.browser_tools import (
     get_dom_elements,
     do_action,
 )
-
 
 # ---------------------------------------------------------
 # State definition
@@ -78,17 +80,94 @@ def getGeneratedCode()->str:
 # ---------------------------------------------------------
 load_dotenv()
 
-def create_groq_llm(model="openai/gpt-oss-120b", temperature=0.1):
-    return ChatGroq(groq_api_key=os.environ.get("GROQ_API_KEY"),
-        model_name=model,
-        temperature=temperature,
-        # max_tokens=1024,
-        timeout=60,
-        max_retries=2,
-    )
+def create_groq_llm(
+    model: str | None = None,
+    temperature: float | None = None,
+    max_tokens: int | None = None,
+    timeout: int | None = None,
+):
+    """
+    Create and return a ChatGroq LLM instance.
+    Uses provided arguments if given, otherwise falls back to values from load_config().
+    """
+    config = load_config() or {}
 
-llm = create_groq_llm()
-llm_with_tools = llm.bind_tools(tools)
+    cfg_model = model if model is not None else config.get("ai_model")
+    cfg_temperature = temperature if temperature is not None else config.get("temperature")
+    cfg_max_tokens = max_tokens if max_tokens is not None else config.get("max_tokens")
+    cfg_timeout = timeout if timeout is not None else config.get("timeout")
+
+    # safe casts
+    try:
+        cfg_temperature = float(cfg_temperature) if cfg_temperature is not None else None
+    except Exception:
+        cfg_temperature = None
+    try:
+        cfg_max_tokens = int(cfg_max_tokens) if cfg_max_tokens is not None else None
+    except Exception:
+        cfg_max_tokens = None
+    try:
+        cfg_timeout = int(cfg_timeout) if cfg_timeout is not None else None
+    except Exception:
+        cfg_timeout = None
+
+    print("Creating Groq LLM with:", cfg_model, cfg_timeout, cfg_max_tokens)
+
+    params = {
+        "groq_api_key": os.environ.get("GROQ_API_KEY"),
+        "max_retries": 2,
+    }
+    if cfg_model is not None:
+        params["model_name"] = cfg_model
+    if cfg_temperature is not None:
+        params["temperature"] = cfg_temperature
+    if cfg_max_tokens is not None:
+        params["max_tokens"] = cfg_max_tokens
+    if cfg_timeout is not None:
+        params["timeout"] = cfg_timeout
+
+    return ChatGroq(**params)
+
+# def create_groq_llm(model="openai/gpt-oss-120b", temperature=0.1):
+#     return ChatGroq(groq_api_key=os.environ.get("GROQ_API_KEY"),
+#         model_name=model,
+#         temperature=temperature,
+#         # max_tokens=1024,
+#         timeout=60,
+#         max_retries=2,
+#     )
+
+# llm = create_groq_llm()
+# llm_with_tools = llm.bind_tools(tools)
+_llm_cache: dict[str, Any] = {"signature": None, "llm_with_tools": None}
+
+def _config_signature() -> str:
+    """Return a deterministic signature of the loaded config (used to detect changes)."""
+    cfg = load_config() or {}
+    # include only keys you care about, or the whole dict
+    return json.dumps(cfg, sort_keys=True)
+
+def invalidate_llm_cache() -> None:
+    """Force the LLM cache to be recreated on next use."""
+    _llm_cache["signature"] = None
+    _llm_cache["llm_with_tools"] = None
+
+def get_llm_with_tools():
+    """
+    Return a bound LLM (llm.bind_tools(tools)). Recreate it if the config signature changed.
+    This ensures any change to load_config() (model/temperature/max_tokens/timeout...) is reflected.
+    """
+    current_sig = _config_signature()
+    if _llm_cache["llm_with_tools"] is not None and _llm_cache["signature"] == current_sig:
+        return _llm_cache["llm_with_tools"]
+
+    # recreate using current config
+    llm = create_groq_llm()  # create_groq_llm reads load_config() internally
+    llm_with_tools = llm.bind_tools(tools)
+
+    _llm_cache["signature"] = current_sig
+    _llm_cache["llm_with_tools"] = llm_with_tools
+    return llm_with_tools
 
 
 systemPrompt = (
@@ -107,6 +186,7 @@ systemPrompt = (
     "9. Never execute destructive commands (file deletion, system installs).\n"
     "10. Always explain what you are doing before calling a tool.\n"
     "11. If instructions are unclear, ask clarifying questions.\n" 
+    "12. IMPORTANT: Ensure you close the browser when your done"
 )
 
 systemPromptTest=( "You are an AI browser Automation Agent. "
@@ -233,9 +313,10 @@ systemPromptTest=( "You are an AI browser Automation Agent. "
 # ---------------------------------------------------------
 def llm_call(state: MessagesState):
     """Ask the LLM what to do next (generate code, call a tool, or stop)."""
+    llm_tools=get_llm_with_tools()
     return {
         "messages": [
-            llm_with_tools.invoke(
+            llm_tools.invoke(
                 [SystemMessage(content=systemPrompt)] + state["messages"]
             )
         ]

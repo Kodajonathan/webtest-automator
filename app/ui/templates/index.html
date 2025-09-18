@@ -311,82 +311,76 @@ Example: Test the login functionality by entering valid and invalid credentials.
         <h2 class="mb-4">Settings</h2>
 
         <div class="row">
-          <div class="col-md-6">
-            <div class="card">
-              <div class="card-header">
-                <i class="fas fa-cog me-2"></i>General Settings
-              </div>
-              <div class="card-body">
-                <form>
-                  <div class="mb-3">
-                    <label class="form-label">Default Browser</label>
-                    <select class="form-select">
-                      <option>Chrome</option>
-                      <option>Firefox</option>
-                      <option>Edge</option>
-                      <option>Safari</option>
-                    </select>
-                  </div>
+  <div class="col-md-12">
+    <div class="card">
+      <div class="card-header">
+        <i class="fas fa-sliders-h me-2"></i> Configuration Settings
+      </div>
+      <div class="card-body">
+        <form id="configForm">
+          <!-- General Settings -->
+          <div class="mb-4 border-bottom pb-3">
+            <h5><i class="fas fa-cog me-2"></i>General Settings</h5>
 
-                  <div class="mb-3">
-                    <label class="form-label">Test Timeout (seconds)</label>
-                    <input type="number" class="form-control" value="30" />
-                  </div>
-                  <div class="mb-3">
-                    <label class="form-label">AI API Providers</label>
-                    <select class="form-select">
-                      <option>Groq</option>
-                    </select>
-                  </div>
+            <div class="mb-3">
+              <label class="form-label">Default Browser</label>
+              <select name="browser" id="browser" class="form-select">
+                <option>Chrome</option>
+                <option>Firefox</option>
+                <option>Edge</option>
+                <option>Safari</option>
+              </select>
+            </div>
 
-                  <div class="mb-3">
-                    <div class="form-check">
-                      <input
-                        class="form-check-input"
-                        type="checkbox"
-                        id="headlessMode"
-                        checked
-                      />
-                      <label class="form-check-label" for="headlessMode">
-                        Run tests in headless mode
-                      </label>
-                    </div>
-                  </div>
+            <div class="mb-3">
+              <label class="form-label">Test Timeout (seconds)</label>
+              <input name="timeout" id="timeout" type="number" class="form-control" />
+            </div>
 
-                  <button type="submit" class="btn btn-primary">
-                    <i class="fas fa-save me-2"></i>Save Settings
-                  </button>
-                </form>
+            <div class="mb-3">
+              <label class="form-label">AI API Providers</label>
+              <select name="aiProvider" id="aiProvider" class="form-select">
+                <option>Groq</option>
+              </select>
+            </div>
+
+            <div class="mb-3">
+              <div class="form-check">
+                <input name="headlessMode" class="form-check-input" type="checkbox" id="headlessMode" />
+                <label class="form-check-label" for="headlessMode">
+                  Run tests in headless mode
+                </label>
               </div>
             </div>
           </div>
 
-          <div class="col-md-6">
-            <div class="card">
-              <div class="card-header">
-                <i class="fas fa-robot me-2"></i>AI Configuration
-              </div>
-              <div class="card-body">
-                <form>
-                  <div class="mb-3">
-                    <label class="form-label">AI Model</label>
-                    <select id="modelSelect" class="form-select">
-                    </select>
-                  </div>
+          <!-- AI Configuration -->
+          <div class="mb-4">
+            <h5><i class="fas fa-robot me-2"></i>AI Configuration</h5>
 
-                  <div class="mb-3">
-                    <label class="form-label">Max Tokens</label>
-                    <input type="number" class="form-control" value="2048" />
-                  </div>
+            <div class="mb-3">
+              <label class="form-label">AI Model</label>
+              <select name="modelSelect" id="modelSelect" class="form-select">
+                <option>- Select Model -</option>
+              </select>
+            </div>
 
-                  <button type="submit" class="btn btn-primary">
-                    <i class="fas fa-save me-2"></i>Save Configuration
-                  </button>
-                </form>
-              </div>
+            <div class="mb-3">
+              <label class="form-label">Max Tokens</label>
+              <input name="max-tokens" type="number" class="form-control" id="max-tokens" />
             </div>
           </div>
-        </div>
+
+          <!-- Save Button -->
+          <button id="settingsBtn" type="submit" class="btn btn-primary">
+            <i class="fas fa-save me-2"></i>Save All Settings
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
       </div>
     </div>
     <footer style="background-color: #30363d; color: #fff" class="mt-5 w-100">
@@ -429,5 +423,6 @@ Example: Test the login functionality by entering valid and invalid credentials.
     <script src="../static/generate.script.js"></script>
     <script src="../static/notification.js"></script>
     <script src="../static/get.config.js"></script>
+    <script src="../static/update.config.js"></script>
   </body>
 </html>

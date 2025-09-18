@@ -18,7 +18,7 @@ $(document).ready(function () {
       datatype: "json",
       success: function (response) {
         Swal.fire({
-          title: "Upload Successful",
+          title: "Success!",
           text: response.message,
           icon: "success",
         });
